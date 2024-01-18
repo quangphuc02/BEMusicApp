@@ -1,23 +1,18 @@
-const express = require('express')
-const app = express()
-const cors = require('cors')
-const dotenv = require('dotenv')
-const mongoose = require('mongoose')
-const cookieParser = require('cookie-parser')
-const authRoute = require('./routes/auth')
+const connectToMongo = require("./config/db");
+const app = require('express')();
 const port = 8000
 
-dotenv.config()
-const connectToMongo = async () => {
-    await mongoose.connect(process.env.MONGO_URL);
-    console.log("Connected to MongoDB");
-};
+const bodyParser = require('express').json
+app.use(bodyParser())
+const userApi = require('./api/user')
+const cors = require('cors');
 
 connectToMongo();
+
+// Sử dụng cors với cấu hình mặc định
 app.use(cors());
-app.use(cookieParser())
-app.use(express.json())
-app.use("/v1/auth", authRoute)
+
+app.use('/user', userApi)
 app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`)
+    console.log(`TRUY CẬP ĐẾN PORT ${port}`)
 })
