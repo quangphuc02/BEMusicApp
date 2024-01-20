@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken')
 
 require('dotenv').config()
 const { google } = require("googleapis")
-const tokenUser = require('../token/tokenUser');
+const tokenUser = require('../middlewares/tokenUser');
 
 
 const CLIENT_ID = process.env.CLIENT_ID
@@ -47,7 +47,6 @@ const userController = {
             const salt = await bcrypt.genSalt(10)
             const hashed = await bcrypt.hash(req.body.password, salt)
             try {
-                  // Kiểm tra xem tên người dùng đã tồn tại hay chưa
                   const existingUser = await users.findOne({ username: req.body.username });
                   const existingEmail = await users.findOne({ email: req.body.email })
                   if (existingUser) return res.status(400).json({ message: 'Tên người dùng đã tồn tại', status: false });
@@ -82,6 +81,52 @@ const userController = {
                   return res.status(500).json({ error: error.message });
             }
       },
+
+      deleteUser: async (req, res, next) => {
+            try {
+                  const authHeader = req.headers['authorization'];
+                  const token = authHeader && authHeader.split(' ')[1];
+                  if (!token) {
+                        return res.status(401).json({ message: 'Chưa đăng nhập' });
+                  }
+                  const userFromToken = tokenUser.verifyToken(token);
+                  if (!userFromToken || !userFromToken.data) {
+                        return res.status(401).json({ message: 'Invalid token' });
+                  }
+                  if (userFromToken.data.admin === false) {
+                        return res.status(403).json({ message: 'Bạn không có quyền xóa người dùng' });
+                  }
+                  const user = await users.findByIdAndDelete(req.params.id);
+                  if (!user) {
+                        return res.status(400).json({ message: 'User not found' });
+                  }
+                  return res.status(200).json({ message: 'Xóa người dùng thành công' });
+            } catch (error) {
+                  return res.status(500).json({ error: error.message });
+            }
+      },
+      getUser: async (req, res, next) => {
+            try {
+                  const authHeader = req.headers['authorization'];
+                  const token = authHeader && authHeader.split(' ')[1];
+                  if (!token) {
+                        return res.status(401).json({ message: 'Chưa đăng nhập' });
+                  }
+                  const userFromToken = tokenUser.verifyToken(token);
+                  if (!userFromToken || !userFromToken.data) {
+                        return res.status(401).json({ message: 'Invalid token' });
+                  }
+                  const user = await users.findById(userFromToken.data._id);
+                  if (!user) {
+                        return res.status(400).json({ message: 'User not found' });
+                  }
+                  let { password, email, __v, _id, ...datas } = user.toObject();
+                  return res.status(200).json({ status: true, data: datas, message: "Lấy thông tin người dùng thành công" });
+            } catch (error) {
+                  return res.status(500).json({ error: error.message });
+            }
+      },
+
       updateUser: async (req, res, next) => {
             try {
                   const data = await users.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -93,34 +138,6 @@ const userController = {
                   return res.status(500).json({ error: error.message });
             }
       },
-      deleteUser: async (req, res, next) => {
-            try {
-                  const authHeader = req.headers['authorization'];
-                  const token = authHeader && authHeader.split(' ')[1];
-
-                  if (!token) {
-                        return res.status(401).json({ message: 'Chưa đăng nhập' });
-                  }
-                  const userFromToken = tokenUser.verifyToken(token);
-                  if (!userFromToken || !userFromToken.data) {
-                        return res.status(401).json({ message: 'Invalid token' });
-                  }
-                  if (userFromToken.data.admin === false) {
-                        return res.status(403).json({ message: 'Bạn không có quyền xóa người dùng' });
-                  }
-
-                  const user = await users.findByIdAndDelete(req.params.id);
-                  if (!user) {
-                        return res.status(400).json({ message: 'User not found' });
-                  }
-
-                  return res.status(200).json({ message: 'User deleted successfully' });
-            } catch (error) {
-                  return res.status(500).json({ error: error.message });
-            }
-      },
-
-
       getAllUsers: async (req, res, next) => {
             try {
                   const allUsers = await users.find();
@@ -128,6 +145,6 @@ const userController = {
             } catch (error) {
                   res.status(500).json({ error: error.message });
             }
-      }
+      },
 }
 module.exports = userController
