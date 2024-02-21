@@ -1,4 +1,4 @@
-const users = require("../models/userSchema")
+const users = require("../db/models/userSchema")
 // const userVerification = require("../models/userVerification")
 const bcrypt = require("bcrypt")
 const nodemailer = require("nodemailer")
