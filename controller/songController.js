@@ -1,7 +1,7 @@
 const fs = require('fs');
 const { initializeApp, firebaseConfig } = require('../lib/firebase');
 const { getStorage, ref, uploadBytes, getDownloadURL } = require('firebase/storage');
-const { getListSongMd, addSongMd, getDetailSongMd, } = require('../db/models/songSchema');
+const { getListSongMd, addSongMd, getDetailSongMd, countSongMd, updateSongMd, deleteSongMd } = require('../db/models/songSchema');
 const { ArrayObjectId, ObjectId, String, Date, Number, validation } = require('../config/joiValid');
 
 const songController = {
@@ -77,20 +77,46 @@ const songController = {
             })
         }
     },
-    getDetailSong: async (req, res, next) => {
-
-        const { id } = req.body
-
-        console.log(id);
+    countSongs: async (req, res, next) => {
 
         const valid = {
-            id: ObjectId.required(),
+            page: Number.required(),
+            limit: Number.required()
+        };
+
+        if (validation(req.query, valid, res)) {
+            return;
+        }
+
+        let where = {}
+
+        try {
+            const data = await countSongMd(where)
+            return res.json({
+                data,
+                status: true,
+                mess: "Lấy dữ liệu thành công"
+            })
+        } catch (error) {
+            return res.json({
+                data: {},
+                status: false,
+                mess: "Có lỗi sảy ra"
+            })
+        }
+    },
+    getDetailSong: async (req, res, next) => {
+
+        const { _id } = req.body
+
+        const valid = {
+            _id: ObjectId.required(),
         };
 
         if (validation(req.body, valid, res)) {
             return;
         }
-        let where = { _id: id }
+        let where = { _id }
         try {
             const data = await getDetailSongMd(where)
             return res.json({
@@ -105,9 +131,54 @@ const songController = {
                 mess: "Có lỗi sảy ra"
             })
         }
+    },
+    deleteSong: (req, res, next) => {
+        const valid = { _id: ObjectId.required() };
+        if (validation(req.body, valid, res)) return;
+        deleteSongMd({ _id: req.body._id })
+            .then(data => res.json({ data, status: true, mess: "Xóa dữ liệu thành công" }))
+            .catch(error => res.json({ data: {}, status: false, mess: "Có lỗi sảy ra" }));
+    },
+    updateSong: async (req, res, next) => {
+        const { _id, name, by, season, topic, singer, composed } = req.body;
 
+        const valid = {
+            _id: ObjectId.required(),
+        };
 
+        if (validation({ _id }, valid, res)) {
+            return;
+        }
+
+        let where = { _id }
+        let params = { name, by, season, topic, singer, composed }
+
+        if (req.file) {
+            initializeApp(firebaseConfig)
+            const storage = getStorage()
+            const storageRef = ref(storage, `songs/${req.file.originalname}`)
+            uploadBytes(storageRef, req.file.buffer).then(() => {
+                getDownloadURL(storageRef).then(async (url) => {
+                    if (url) params.song = url
+                    try {
+                        const data = await updateSongMd(where, params)
+                        return res.json({
+                            data,
+                            status: true,
+                            mess: "Cập nhật dữ liệu thành công"
+                        });
+                    } catch (error) {
+                        return res.json({
+                            data: {},
+                            status: false,
+                            mess: "Có lỗi sảy ra"
+                        })
+                    }
+                });
+            })
+        }
     }
+
 };
 
 

@@ -34,9 +34,21 @@ const addSongMd = (params) => {
 const getDetailSongMd = (where = {}) => {
       return songModel.findItem(where)
 }
+const countSongMd = (where = {}, page, limit) => {
+      return songModel.count(where, page, limit)
+}
+const updateSongMd = (where = {}, attr) => {
+      return songModel.findOneAndUpdate(where, attr)
+}
+const deleteSongMd = (where = {}) => {
+      return songModel.delete(where)
+}
 
 module.exports = {
       getListSongMd,
       addSongMd,
-      getDetailSongMd
+      getDetailSongMd,
+      countSongMd,
+      updateSongMd,
+      deleteSongMd,
 };

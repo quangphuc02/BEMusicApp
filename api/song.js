@@ -8,7 +8,10 @@ const upload = multer({ storage: multer.memoryStorage() });
 const router = express.Router();
 
 router.post('/addSong', upload.single('song'), songController.addSong)
+router.post('/updateSong', upload.single('song'), songController.updateSong)
+router.post('/deleteSong', songController.deleteSong)
 router.get('/getListSongs', songController.getListSongs)
 router.get('/getDetailSong', songController.getDetailSong)
+router.get('/countSongs', songController.countSongs)
 
 module.exports = router;
