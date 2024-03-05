@@ -1,11 +1,16 @@
+const mongoose = require("mongoose")
+
+
 class ModelBase {
-    constructor(model) {
-        this.model = model
+
+    static init(tableName, schema) {
+        const newSchema = new mongoose.Schema(schema, { timestamps: true })
+        this.model = mongoose.model(tableName, newSchema)
     }
 
-    async findAll(where, page, limit, populates, sort) {
+    static findAll(where, page, limit, populates, sort) {
         if (!where.deletedAt) where.deletedAt = null;
-        const query = await this.model.find(where);
+        const query = this.model.find(where);
         if (sort) query.sort(sort);
         if (limit && page) {
             const skip = Number(limit) * (Number(page) - 1);
@@ -17,16 +22,16 @@ class ModelBase {
         }
         return query.exec();
     }
-    async count(where) {
+    static count(where) {
         if (!where.deletedAt) where.deletedAt = null;
-        const total = await this.model.countDocuments(where);
+        const total = this.model.countDocuments(where);
         return total
     }
-    async create(params) {
-        const data = await this.model(params)
+    static create(params) {
+        const data = this.model(params)
         return data.save()
     }
-    async findOneAndUpdate(where, attr) {
+    static async findOneAndUpdate(where, attr) {
         if (!where.deletedAt) where.deletedAt = null;
         const before = await this.model.findOne(where).exec();
         const item = await this.model.findOneAndUpdate(where, attr, { new: true }).exec();
@@ -34,16 +39,15 @@ class ModelBase {
             item, before
         }
     }
-    async findItem(where) {
+    static findItem(where) {
         if (!where.deletedAt) where.deletedAt = null;
-        const query = await this.model.findOne(where);
+        const query = this.model.findOne(where);
         return query.exec()
     }
-    async delete(where) {
+    static delete(where) {
         if (!where.deletedAt) where.deletedAt = null;
         const update = { deletedAt: new Date() };
-        await this.model.findOneAndUpdate(where, update, { new: true }).exec();
-
+        this.model.findOneAndUpdate(where, update, { new: true }).exec();
     }
 }
 module.exports = ModelBase

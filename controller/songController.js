@@ -1,8 +1,9 @@
-const fs = require('fs');
 const { initializeApp, firebaseConfig } = require('../lib/firebase');
 const { getStorage, ref, uploadBytes, getDownloadURL } = require('firebase/storage');
 const { getListSongMd, addSongMd, getDetailSongMd, countSongMd, updateSongMd, deleteSongMd } = require('../db/models/songSchema');
 const { ArrayObjectId, ObjectId, String, Date, Number, validation } = require('../config/joiValid');
+const asyncHandler = require('express-async-handler');
+
 
 const songController = {
     addSong: async (req, res, next) => {
@@ -105,39 +106,34 @@ const songController = {
             })
         }
     },
-    getDetailSong: async (req, res, next) => {
+    getDetailSong: asyncHandler(async (req, res, next) => {
 
         const { _id } = req.body
-
         const valid = {
             _id: ObjectId.required(),
         };
 
-        if (validation(req.body, valid, res)) {
-            return;
-        }
+        if (validation(req.body, valid, res)) return;
+
         let where = { _id }
-        try {
-            const data = await getDetailSongMd(where)
-            return res.json({
-                data,
-                status: true,
-                mess: "Lấy dữ liệu thành công"
-            })
-        } catch (error) {
-            return res.json({
-                data: {},
-                status: false,
-                mess: "Có lỗi sảy ra"
-            })
-        }
-    },
-    deleteSong: (req, res, next) => {
+
+        const data = await getDetailSongMd(where)
+        if (!data) throw new Error("Không tìm thấy bài hát")
+
+        return res.json({ data, status: true, mess: "Lấy dữ liệu thành công" })
+
+    }),
+    deleteSong: async (req, res, next) => {
+        const { _id } = req.body
         const valid = { _id: ObjectId.required() };
         if (validation(req.body, valid, res)) return;
-        deleteSongMd({ _id: req.body._id })
-            .then(data => res.json({ data, status: true, mess: "Xóa dữ liệu thành công" }))
-            .catch(error => res.json({ data: {}, status: false, mess: "Có lỗi sảy ra" }));
+        let where = { _id }
+        try {
+            const data = await deleteSongMd(where)
+            res.json({ data, status: true, mess: "Xóa dữ liệu thành công" })
+        } catch (err) {
+            res.json({ data: {}, status: false, mess: "Có lỗi sảy ra" })
+        }
     },
     updateSong: async (req, res, next) => {
         const { _id, name, by, season, topic, singer, composed } = req.body;
