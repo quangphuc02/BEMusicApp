@@ -50,7 +50,7 @@ const songController = {
         }
 
     },
-    getListSongs: async (req, res, next) => {
+    getListSongs: asyncHandler(async (req, res, next) => {
         const { page, limit } = req.query;
 
         const valid = {
@@ -64,20 +64,22 @@ const songController = {
         let where = {}
 
         try {
-            const data = await getListSongMd(where, page, limit)
+            const data = await getListSongMd(where, page, limit, [{ path: 'topic', select: 'name' }])
             return res.json({
                 data,
                 status: true,
                 mess: "Lấy dữ liệu thành công"
             })
         } catch (error) {
+            console.log(error);
             return res.json({
-                data: {},
+                data: error,
                 status: false,
-                mess: "Có lỗi sảy ra"
+                mess: "Có lỗi sảy ra "
             })
         }
-    },
+    }),
+
     countSongs: async (req, res, next) => {
 
         const valid = {

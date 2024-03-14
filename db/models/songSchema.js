@@ -6,9 +6,8 @@ class SongModel extends ModelBase { }
 
 SongModel.init("Song", {
       name: { type: String, },
-      by: { type: ObjectId, ref: 'User' },
-      season: { type: Array, },
-      topic: { type: Array, },
+      by: { type: ObjectId, ref: 'users' },
+      topic: [{ type: ObjectId, ref: 'Topic' }],
       singer: { type: String },
       composed: { type: String },
       song: { type: String },

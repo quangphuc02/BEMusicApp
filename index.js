@@ -6,6 +6,7 @@ const bodyParser = require('express').json
 app.use(bodyParser())
 const userApi = require('./api/user')
 const songApi = require('./api/song')
+const topicApi = require('./api/topic')
 
 const cors = require('cors');
 
@@ -15,7 +16,7 @@ app.use(cors());
 
 app.use('/user', userApi)
 app.use('/song', songApi)
-
+app.use('/topic', topicApi)
 app.use(notFound)
 app.use(errHandler)
 
