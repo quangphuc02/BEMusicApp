@@ -50,7 +50,56 @@ const songController = {
         }
 
     },
-    getListSongs: asyncHandler(async (req, res, next) => {
+    getListLent: asyncHandler(async (req, res, next) => { //  Mùa chay
+        const { page, limit } = req.query;
+
+        const valid = {
+            page: Number.required(),
+            limit: Number.required()
+        };
+
+        if (validation(req.query, valid, res)) {
+            return;
+        }
+        let where = { topic: { $in: ["65f27871799937e5fc7a36ce"] } }
+
+        const data = await getListSongMd(where, page, limit, [{ path: "by", select: "username" }, { path: "topic", select: "name" }]);
+        if (!data) throw new Error("Không tìm thấy danh sách bài hát")
+        return res.json({
+            data,
+            status: true,
+            mess: "Lấy dữ liệu thành công"
+        })
+
+    }),
+    getListSacring: asyncHandler(async (req, res, next) => { // Dâng lễ
+        const { page, limit } = req.query;
+
+        const valid = {
+            page: Number.required(),
+            limit: Number.required()
+        };
+
+        if (validation(req.query, valid, res)) {
+            return;
+        }
+        let where = { topic: { $in: ["65f276b9ced2a6036f02d6f5"] } }
+
+        const data = await getListSongMd(where, page, limit,
+            [
+                { path: "by", select: "username" },
+                { path: "topic", select: "name" }
+            ],
+        );
+        if (!data) throw new Error("Không tìm thấy danh sách bài hát")
+        return res.json({
+            data,
+            status: true,
+            mess: "Lấy dữ liệu thành công"
+        })
+
+    }),
+    getListTrend: asyncHandler(async (req, res, next) => { // Thịnh Hành
         const { page, limit } = req.query;
 
         const valid = {
@@ -63,21 +112,20 @@ const songController = {
         }
         let where = {}
 
-        try {
-            const data = await getListSongMd(where, page, limit, [{ path: 'topic', select: 'name' }])
-            return res.json({
-                data,
-                status: true,
-                mess: "Lấy dữ liệu thành công"
-            })
-        } catch (error) {
-            console.log(error);
-            return res.json({
-                data: error,
-                status: false,
-                mess: "Có lỗi sảy ra "
-            })
-        }
+        const data = await getListSongMd(where, page, limit,
+            [
+                { path: "by", select: "username" },
+                { path: "topic", select: "name" }
+            ],
+            { listens: -1 }
+        );
+        if (!data) throw new Error("Không tìm thấy danh sách bài hát")
+        return res.json({
+            data,
+            status: true,
+            mess: "Lấy dữ liệu thành công"
+        })
+
     }),
 
     countSongs: async (req, res, next) => {
