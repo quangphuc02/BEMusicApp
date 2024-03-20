@@ -147,11 +147,7 @@ const songController = {
             ],
         );
         if (!data) throw new Error("Không tìm thấy danh sách bài hát")
-        return res.json({
-            data,
-            status: true,
-            mess: "Lấy dữ liệu thành công"
-        })
+        return res.json({ data, status: true, mess: "Lấy dữ liệu thành công" })
 
     }),
 
