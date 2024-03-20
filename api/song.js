@@ -13,6 +13,7 @@ router.post('/deleteSong', songController.deleteSong)
 router.get('/getListLent', songController.getListLent) // Mùa Chay
 router.get('/getListTrend', songController.getListTrend)   // Thịnh hành
 router.get('/getListSacring', songController.getListSacring) // Dâng Lễ
+router.get('/getListAll', songController.getListAll) // Get All Song
 router.get('/getDetailSong', songController.getDetailSong)
 router.get('/countSongs', songController.countSongs)
 

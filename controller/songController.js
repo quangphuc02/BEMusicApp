@@ -127,6 +127,33 @@ const songController = {
         })
 
     }),
+    getListAll: asyncHandler(async (req, res, next) => { // Thịnh Hành
+        const { page, limit } = req.query;
+
+        const valid = {
+            page: Number.required(),
+            limit: Number.required()
+        };
+
+        if (validation(req.query, valid, res)) {
+            return;
+        }
+        let where = {}
+
+        const data = await getListSongMd(where, page, limit,
+            [
+                { path: "by", select: "username" },
+                { path: "topic", select: "name" }
+            ],
+        );
+        if (!data) throw new Error("Không tìm thấy danh sách bài hát")
+        return res.json({
+            data,
+            status: true,
+            mess: "Lấy dữ liệu thành công"
+        })
+
+    }),
 
     countSongs: async (req, res, next) => {
 
@@ -196,6 +223,7 @@ const songController = {
             return;
         }
 
+
         let where = { _id }
         let params = { name, by, season, topic, singer, composed }
 
@@ -224,6 +252,7 @@ const songController = {
             })
         }
     }
+
 
 };
 
