@@ -135,9 +135,8 @@ const songController = {
             limit: Number.required()
         };
 
-        if (validation(req.query, valid, res)) {
-            return;
-        }
+        if (validation(req.query, valid, res)) return;
+
         let where = {}
 
         const data = await getListSongMd(where, page, limit,
@@ -181,14 +180,15 @@ const songController = {
     },
     getDetailSong: asyncHandler(async (req, res, next) => {
 
-        const { _id } = req.body
+        const { _id } = req.query || req.body
+
         const valid = {
             _id: ObjectId.required(),
         };
 
-        if (validation(req.body, valid, res)) return;
+        if (validation({ _id }, valid, res)) return;
 
-        let where = { _id }
+        let where = { _id: _id }
 
         const data = await getDetailSongMd(where)
         if (!data) throw new Error("Không tìm thấy bài hát")
