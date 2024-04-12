@@ -1,7 +1,7 @@
-const Joi = require('joi');
+import Joi from 'joi';
 
 
-const validation = (data, schema, res) => {
+export const validation = (data, schema, res) => {
     const joiSchema = Joi.object(schema).messages({
         'string.base': `Giá trị của {#label} phải là một chuỗi`,
         'number.base': `Giá trị của {#label} phải là một số`,
@@ -30,8 +30,7 @@ const Date = Joi.date()
 const Number = Joi.number()
 
 
-module.exports = {
-    validation,
+export {
     ObjectId,
     ArrayObjectId,
     String,

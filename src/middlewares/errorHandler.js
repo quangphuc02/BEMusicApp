@@ -14,5 +14,4 @@ const errHandler = (err, req, res, next) => {
     })
     console.log(err?.stack, 15)
 }
-
-module.exports = { errHandler, notFound }
+export { notFound, errHandler }

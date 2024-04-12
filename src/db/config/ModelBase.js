@@ -1,6 +1,4 @@
-const mongoose = require("mongoose")
-
-
+import mongoose from "mongoose"
 class ModelBase {
 
     static init(tableName, schema) {
@@ -41,7 +39,10 @@ class ModelBase {
     }
     static findItem(where) {
         if (!where.deletedAt) where.deletedAt = null;
-        const query = this.model.findOne(where);
+        const query = this.model.findOne(where, populates);
+        if (populates && populates.length > 0) {
+            populates.forEach(p => query.populate(p))
+        }
         return query.exec()
     }
     static delete(where) {
@@ -50,4 +51,4 @@ class ModelBase {
         this.model.findOneAndUpdate(where, update, { new: true }).exec();
     }
 }
-module.exports = ModelBase
+export default ModelBase

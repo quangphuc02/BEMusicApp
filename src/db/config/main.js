@@ -1,7 +1,7 @@
-const mongoose = require('mongoose');
-require('dotenv').config();
+import mongoose from 'mongoose'
 
-const connectToMongo = async () => {
+
+export const connectToMongo = async () => {
     await mongoose.connect(process.env.MONGO_URL);
     console.log('Đã kết nối đến Database');
     mongoose.connection.on('connected', () => {
@@ -11,5 +11,3 @@ const connectToMongo = async () => {
     });
 };
 
-
-module.exports = { connectToMongo };

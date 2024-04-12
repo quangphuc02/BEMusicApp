@@ -1,6 +1,6 @@
-const mongoose = require("mongoose")
+import mongoose from "mongoose"
 const { ObjectId } = mongoose.Schema
-const ModelBase = require('../config/ModelBase');
+import ModelBase from '../config/ModelBase'
 class SongModel extends ModelBase { }
 
 

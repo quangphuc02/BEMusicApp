@@ -1,6 +1,4 @@
-const { initializeApp } = require('firebase/app');
-const dotenv = require('dotenv')
-dotenv.config()
+import { initializeApp } from 'firebase/app';
 
 const firebaseConfig = {
     apiKey: process.env.APIKEY,
@@ -11,4 +9,4 @@ const firebaseConfig = {
     appId: process.env.APPID
 };
 
-module.exports = { firebaseConfig, initializeApp }
+export { firebaseConfig, initializeApp }

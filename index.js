@@ -1,25 +1,29 @@
-const { connectToMongo } = require("./db/config/main");
-const app = require('express')();
-const port = 8000
-const { errHandler, notFound } = require("./middlewares/errorHandler");
-const bodyParser = require('express').json
-app.use(bodyParser())
-const userApi = require('./api/user')
-const songApi = require('./api/song')
-const topicApi = require('./api/topic')
+import { connectToMongo } from "./src/db/config/main"
+import express from "express";
+import { errHandler, notFound } from "./src/middlewares/errorHandler"
+import userApi from './src/api/user'
+import songApi from './src/api/song'
+import topicApi from './src/api/topic'
+import favoriteApi from "./src/api/favorite"
+import cors from "cors";
+import { collectRequest } from "./src/middlewares/collectRequest"
+import dotenv from 'dotenv'
 
-const cors = require('cors');
-
+dotenv.config()
+const app = express()
 connectToMongo();
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cors());
-
+app.use(collectRequest)
 app.use('/user', userApi)
 app.use('/song', songApi)
 app.use('/topic', topicApi)
+app.use('/favorite', favoriteApi)
 app.use(notFound)
 app.use(errHandler)
 
-app.listen(port, () => {
-    console.log(`TRUY CẬP ĐẾN PORT ${port}`)
+app.listen(process.env.PORT || 8000, () => {
+    console.log(`TRUY CẬP ĐẾN PORT ${process.env.PORT}`)
 })

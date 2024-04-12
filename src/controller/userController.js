@@ -1,8 +1,8 @@
-const users = require("../db/models/userSchema")
-// const userVerification = require("../models/userVerification")
-const bcrypt = require("bcrypt")
-const nodemailer = require("nodemailer")
-const jwt = require('jsonwebtoken')
+import users from "../db/models/userSchema"
+
+import bcrypt from "bcrypt"
+import nodemailer from "nodemailer"
+import jwt from 'jsonwebtoken'
 
 require('dotenv').config()
 const { google } = require("googleapis")
@@ -15,6 +15,7 @@ const REDIRECT_URI = process.env.REDIRECT_URI
 const REFRESH_TOKEN = process.env.REFRESH_TOKEN
 const oAuth2Client = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI)
 oAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN })
+
 const sendMail = async (userEmail) => {
       try {
             const accessToken = await oAuth2Client.getAccessToken()
