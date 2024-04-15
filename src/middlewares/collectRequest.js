@@ -1,7 +1,16 @@
+import asyncHandler from 'express-async-handler'
 import jwt from 'jsonwebtoken'
+import { get } from 'mongoose'
 
-export const collectRequest = (req, res, next) => {
+export const collectRequest = asyncHandler(async (req, res, next) => {
     req.c = {}
+    req.c.MESS = {
+        get: "Lấy dữ liệu thành công",
+        add: "Thêm dữ liệu thành công",
+        delete: "Xóa dữ liệu thành công",
+        update: "Chỉnh sửa dữ liệu thành công",
+        errList: "Không tìm thấy dữ liệu!",
+    }
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
 
@@ -12,7 +21,7 @@ export const collectRequest = (req, res, next) => {
         req.c.userId = decoded.data._id
     }
     next()
-}
+})
 
 
 

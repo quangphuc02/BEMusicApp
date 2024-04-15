@@ -1,9 +1,10 @@
+
+import { songFavoriteRp } from '@/repository';
+import { getDetailFavoriteMd, getListFavoriteMd } from '../db/models/favoriteSchema';
 const { initializeApp, firebaseConfig } = require('../lib/firebase');
 const { getStorage, ref, uploadBytes, getDownloadURL } = require('firebase/storage');
-const { getListSongMd, addSongMd, getDetailSongMd, countSongMd, updateSongMd, deleteSongMd } = require('../db/models/songSchema');
+const { getListSongMd, addSongMd, getDetailSongMd, countSongMd, updateSongMd, deleteSongMd } = require('@/db/models/songSchema');
 const { ArrayObjectId, ObjectId, String, Date, Number, validation } = require('../config/joiValid');
-const asyncHandler = require('express-async-handler');
-
 
 
 export const addSong = async (req, res, next) => {
@@ -120,6 +121,7 @@ export const getListTrend = async (req, res, next) => { // Thịnh Hành
         ],
         { listens: -1 }
     );
+
     if (!data) throw new Error("Không tìm thấy danh sách bài hát")
     return res.json({
         data,
@@ -128,25 +130,32 @@ export const getListTrend = async (req, res, next) => { // Thịnh Hành
     })
 
 }
+
 export const getListAll = async function (req, res, next) {
 
     let { c, p } = req
+    let { page, limit } = p
 
-    const { page, limit } = req.query;
+
     const valid = { page: Number, limit: Number }
-    if (validation(req.query, valid, res)) return;
+    if (validation({ page, limit }, valid, res)) return;
 
     let where = {}
 
-    const data = await getListSongMd(where, page, limit,
+    const listSongs = await getListSongMd(where, page, limit,
         [
             { path: "by", select: "username" },
             { path: "topic", select: "name" }
         ],
     );
-    if (!data) throw new Error("Không tìm thấy danh sách bài hát")
-    return res.json({ data, status: true, mess: "Lấy dữ liệu thành công" })
+
+    const data = await songFavoriteRp(listSongs, c.userId)
+
+    if (!data) throw new Error(c.MESS.errList)
+
+    return res.json({ data, status: true, mess: c.MESS.get })
 }
+
 export const countSongs = async (req, res, next) => {
 
     const valid = {

@@ -1,3 +1,4 @@
+import "module-alias/register"
 import { connectToMongo } from "./src/db/config/main"
 import express from "express";
 import { errHandler, notFound } from "./src/middlewares/errorHandler"
@@ -8,6 +9,7 @@ import favoriteApi from "./src/api/favorite"
 import cors from "cors";
 import { collectRequest } from "./src/middlewares/collectRequest"
 import dotenv from 'dotenv'
+
 
 dotenv.config()
 const app = express()

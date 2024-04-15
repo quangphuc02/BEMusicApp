@@ -7,15 +7,14 @@ import {
     getListFavorites,
     updateFavorite
 } from "../controller/favoriteController"
-const asyncHandler = require('express-async-handler');
 
 const router = express.Router();
 
-router.post('/addFavorite', asyncHandler, addFavorite)
-router.post('/updateFavorite', asyncHandler, updateFavorite)
-router.post('/deleteFavorite', asyncHandler, deleteFavorite)
-router.get('/getListFavorites', asyncHandler, getListFavorites)
-router.get('/getDetailFavorite', asyncHandler, getDetailFavorite)
-router.get('/countFavorites', asyncHandler, countFavorites)
+router.post('/addFavorite', addFavorite)
+router.post('/updateFavorite', updateFavorite)
+router.post('/deleteFavorite', deleteFavorite)
+router.get('/getListFavorites', getListFavorites)
+router.get('/getDetailFavorite', getDetailFavorite)
+router.get('/countFavorites', countFavorites)
 
 export default router

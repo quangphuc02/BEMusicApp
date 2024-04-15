@@ -18,7 +18,7 @@ class ModelBase {
         if (populates && populates.length > 0) {
             populates.forEach(p => query.populate(p))
         }
-        return query.exec();
+        return query.lean().exec();
     }
     static count(where) {
         if (!where.deletedAt) where.deletedAt = null;
@@ -37,7 +37,7 @@ class ModelBase {
             item, before
         }
     }
-    static findItem(where) {
+    static findItem(where, populates = []) {
         if (!where.deletedAt) where.deletedAt = null;
         const query = this.model.findOne(where, populates);
         if (populates && populates.length > 0) {

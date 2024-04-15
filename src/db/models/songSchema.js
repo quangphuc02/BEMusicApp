@@ -11,7 +11,7 @@ SongModel.init("Song", {
       singer: { type: String },
       composed: { type: String },
       song: { type: String },
-      listens: { type: Number, default: 0 },
+      favorite: { type: Number, default: 0 },
       likes: { type: Number, default: 0 },
       deletedAt: { type: Date, default: null },
 })
@@ -35,7 +35,7 @@ const deleteSongMd = (where = {}) => {
       return SongModel.delete(where)
 }
 
-module.exports = {
+export {
       getListSongMd,
       addSongMd,
       getDetailSongMd,
