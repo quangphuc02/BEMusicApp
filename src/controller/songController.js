@@ -1,10 +1,9 @@
 
 import { songFavoriteRp } from '@/repository';
-import { getDetailFavoriteMd, getListFavoriteMd } from '../db/models/favoriteSchema';
-const { initializeApp, firebaseConfig } = require('../lib/firebase');
-const { getStorage, ref, uploadBytes, getDownloadURL } = require('firebase/storage');
-const { getListSongMd, addSongMd, getDetailSongMd, countSongMd, updateSongMd, deleteSongMd } = require('@/db/models/songSchema');
-const { ArrayObjectId, ObjectId, String, Date, Number, validation } = require('../config/joiValid');
+import { initializeApp, firebaseConfig } from '@/lib/firebase'
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
+import { getListSongMd, addSongMd, getDetailSongMd, countSongMd, updateSongMd, deleteSongMd } from '@/db/models/songSchema'
+import { ArrayObjectId, ObjectId, String, Date, Number, validation } from '@/config/joiValid'
 
 
 export const addSong = async (req, res, next) => {

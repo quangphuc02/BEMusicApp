@@ -1,6 +1,6 @@
 import mongoose from "mongoose"
 const { ObjectId } = mongoose.Schema
-import ModelBase from '../config/ModelBase'
+import ModelBase from "../config/ModelBase";
 class SongModel extends ModelBase { }
 
 

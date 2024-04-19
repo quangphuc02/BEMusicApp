@@ -1,6 +1,9 @@
-const router = require('express').Router()
-const userController = require('../controller/userController')
-const token = require('../middlewares/tokenUser');
+import express from 'express'
+import userController from '@/controller/userController'
+import token from '@/middlewares/tokenUser'
+
+
+const router = express.Router();
 
 router.post('/signup', userController.signup);
 router.post('/login', userController.login);

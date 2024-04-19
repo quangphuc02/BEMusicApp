@@ -5,8 +5,8 @@ const {
     countFavoriteMd,
     updateFavoriteMd,
     deleteFavoriteMd,
-} = require('../db/models/favoriteSchema');
-import { ArrayObjectId, ObjectId, String, Date, Number, validation } from '../config/joiValid'
+} = require('@/db/models');
+import { ArrayObjectId, ObjectId, String, Date, Number, validation } from '@/config/joiValid'
 import asyncHandler from 'express-async-handler'
 
 

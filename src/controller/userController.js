@@ -5,8 +5,8 @@ import nodemailer from "nodemailer"
 import jwt from 'jsonwebtoken'
 
 require('dotenv').config()
-const { google } = require("googleapis")
-const tokenUser = require('../middlewares/tokenUser');
+import { google } from "googleapis"
+import tokenUser from '../middlewares/tokenUser'
 
 
 const CLIENT_ID = process.env.CLIENT_ID
