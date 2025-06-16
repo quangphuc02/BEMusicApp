@@ -1,0 +1,123 @@
+import mongoose, { Schema, Model, Document } from 'mongoose';
+
+type PopulateOption = string | { path: string; select?: string };
+
+type QueryOptions = {
+  page?: number;
+  limit?: number;
+  sort?: any;
+  populates?: PopulateOption[];
+  includeDeleted?: boolean;
+};
+
+class BaseModel<T extends Document> {
+  static model: Model<any>;
+
+  /**
+   * Initialize model with schema
+   */
+  static init(tableName: string, schemaDef: any, hooks: (schema: Schema) => void = () => {}) {
+    const schema = new mongoose.Schema(schemaDef, { timestamps: true });
+    hooks(schema); // allow model-specific hooks
+    this.model = mongoose.model(tableName, schema);
+  }
+
+  /** Add default soft delete filter */
+  static applyDefaultWhere(where: any = {}, includeDeleted = false) {
+    if (!includeDeleted) {
+      where.deletedAt = null;
+    }
+    return where;
+  }
+
+  static async create(params: any) {
+    if (this.beforeCreate) {
+      params = await this.beforeCreate(params);
+    }
+    const doc = new this.model(params);
+    return doc.save();
+  }
+
+  static async findAll(where: any = {}, options: QueryOptions = {}) {
+    const { page, limit, sort, populates, includeDeleted } = options;
+    where = this.applyDefaultWhere(where, includeDeleted);
+
+    const query = this.model.find(where);
+    if (sort) query.sort(sort);
+    if (limit && page) query.skip(limit * (page - 1)).limit(limit);
+    populates?.forEach(p => query.populate(p));
+
+    return query.lean().exec();
+  }
+
+  static async count(where: any = {}, includeDeleted = false) {
+    where = this.applyDefaultWhere(where, includeDeleted);
+    return this.model.countDocuments(where);
+  }
+
+  static async findItem(where: any = {}, populates: PopulateOption[] = [], includeDeleted = false) {
+    where = this.applyDefaultWhere(where, includeDeleted);
+    const query = this.model.findOne(where);
+    populates?.forEach(p => query.populate(p));
+    return query.exec();
+  }
+
+  static async findOneAndUpdate(where: any, updates: any, includeDeleted = false) {
+    where = this.applyDefaultWhere(where, includeDeleted);
+    const before = await this.model.findOne(where).exec();
+    const item = await this.model.findOneAndUpdate(where, updates, { new: true }).exec();
+    return { item, before };
+  }
+
+  static async delete(where: any, hard = false) {
+    where = this.applyDefaultWhere(where);
+    if (hard) return this.model.deleteOne(where).exec();
+    return this.model.findOneAndUpdate(where, { deletedAt: new Date() }, { new: true }).exec();
+  }
+
+  static async restore(where: any) {
+    return this.model.findOneAndUpdate({ ...where, deletedAt: { $ne: null } }, { deletedAt: null }, { new: true }).exec();
+  }
+
+  /**
+   * Aggregate with soft delete filtering
+   */
+  static async aggregate(pipeline: any[] = [], includeDeleted = false) {
+    const softDeleteMatch = { $match: { deletedAt: null } };
+    const finalPipeline = includeDeleted ? pipeline : [softDeleteMatch, ...pipeline];
+    return this.model.aggregate(finalPipeline, { allowDiskUse: true });
+  }
+
+  /**
+   * Compile query object to pipeline array
+   */
+  static buildPipeline(queryObject: {
+    match?: any;
+    sort?: any;
+    group?: any;
+    project?: any;
+    limit?: number;
+    skip?: number;
+  }, includeDeleted = false): any[] {
+    const pipeline: any[] = [];
+
+    // Soft delete filter
+    if (!includeDeleted) {
+      queryObject.match = { ...(queryObject.match || {}), deletedAt: null };
+    }
+
+    if (queryObject.match) pipeline.push({ $match: queryObject.match });
+    if (queryObject.sort) pipeline.push({ $sort: queryObject.sort });
+    if (queryObject.group) pipeline.push({ $group: queryObject.group });
+    if (queryObject.project) pipeline.push({ $project: queryObject.project });
+    if (typeof queryObject.skip === 'number') pipeline.push({ $skip: queryObject.skip });
+    if (typeof queryObject.limit === 'number') pipeline.push({ $limit: queryObject.limit });
+
+    return pipeline;
+  }
+
+  /** Hook override points */
+  static beforeCreate?(params: any): Promise<any> | any;
+}
+
+export default BaseModel;
